@@ -15,7 +15,9 @@ class TodoItem extends StatelessWidget {
           margin: EdgeInsets.only(bottom: 20),
           child: ListTile(
             contentPadding: EdgeInsets.symmetric(horizontal: 20,vertical: 5),
-            onTap: onTodoChanged(todo),
+            onTap:(){
+                 onTodoChanged(todo);
+            },
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             tileColor: Colors.white,
             leading: Icon( todo.isDone ? Icons.check_box: Icons.check_box_outline_blank, color: tdBlue),
@@ -36,7 +38,9 @@ class TodoItem extends StatelessWidget {
                 color: tdRed,
                 borderRadius: BorderRadius.circular(5),
               ),
-              child: IconButton(color:Colors.white,iconSize: 20,onPressed: onDeleteItem(todo.id), icon: Icon(Icons.delete)),
+              child: IconButton(color:Colors.white,iconSize: 20,onPressed: (){
+                onDeleteItem(todo.id);
+              }, icon: Icon(Icons.delete)),
             ),
           ),
         );
