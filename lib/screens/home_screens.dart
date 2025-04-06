@@ -12,6 +12,14 @@ class HomeScreens extends StatefulWidget {
 
 class _HomeScreensState extends State<HomeScreens> {
   final todoList = ToDo.todoList();
+  final _todoController = TextEditingController();
+  List<ToDo> _foundTodoList = [];
+
+  @override
+  void initState() {
+    _foundTodoList = todoList;
+    super.initState();
+  }
 
   void _handleTodoChanges(ToDo todo) {
     setState(() {
@@ -21,7 +29,58 @@ class _HomeScreensState extends State<HomeScreens> {
 
   void _deleteTodoItem(String id) {
     setState(() {
-    todoList.removeWhere((item) => item.id == id);
+      todoList.removeWhere((item) => item.id == id);
+    });
+  }
+
+  void _addTodoItem(String todo) {
+    if (todo.isNotEmpty) {
+    setState(() {
+      todoList.add(
+        ToDo(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          todoText: todo,
+        ),
+      );
+    });
+    }else {
+      showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Input Required'),
+          content: Text('Could you please add some values?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    }
+    _todoController.clear();
+  }
+
+  void _searchingTodo(String enteredText) {
+    List<ToDo> results = [];
+    if (enteredText.isEmpty) {
+      results = todoList;
+    } else {
+      results =
+          todoList
+              .where(
+                (item) => item.todoText!.toLowerCase().contains(
+                  enteredText.toLowerCase(),
+                )
+              )
+              .toList();
+    }
+    setState(() {
+      _foundTodoList = results;
     });
   }
 
@@ -51,7 +110,7 @@ class _HomeScreensState extends State<HomeScreens> {
                           "TODOs",
                         ),
                       ),
-                      for (ToDo todoo in todoList)
+                      for (ToDo todoo in _foundTodoList.reversed)
                         TodoItem(
                           todo: todoo,
                           onTodoChanged: _handleTodoChanges,
@@ -98,6 +157,7 @@ class _HomeScreensState extends State<HomeScreens> {
         borderRadius: BorderRadius.circular(20),
       ),
       child: TextField(
+        onChanged: (value) => _searchingTodo(value),
         decoration: InputDecoration(
           contentPadding: EdgeInsets.all(0),
           prefixIcon: Icon(Icons.search, color: tdGrey, size: 20),
@@ -132,6 +192,7 @@ class _HomeScreensState extends State<HomeScreens> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: TextField(
+                controller: _todoController,
                 decoration: InputDecoration(
                   hintText: 'Add a new todo item',
                   border: InputBorder.none,
@@ -142,7 +203,9 @@ class _HomeScreensState extends State<HomeScreens> {
           Container(
             margin: EdgeInsets.only(bottom: 20, right: 20),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                _addTodoItem(_todoController.text);
+              },
               child: Text('+', style: TextStyle(fontSize: 40)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: tdBlue,
